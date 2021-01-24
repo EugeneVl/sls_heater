@@ -18,6 +18,8 @@ heater.cur_temp = 99
 heater.force_full_power = zigbee.value(heater.switch.addr, heater.switch.force_full_power) == "ON"
 heater.force_boiler_on = zigbee.value(heater.switch.addr, heater.switch.force_boiler_on) == "ON"
 heater.force_switches_on = zigbee.value(heater.switch.addr, heater.switch.force_switches_on) == "ON"
+heater.full_power = zigbee.value(heater.switch.addr, heater.switch.full_power) == "ON"
+heater.boiler_on = zigbee.value(heater.switch.addr, heater.switch.boiler_on) == "ON"
 
 function heater:set_full_power(val)
     set_state(self.switch.addr, self.switch.full_power, val)
@@ -40,17 +42,21 @@ function heater:adjust_heaters()
         room.max_temp = room.set_temp + room.hysteresis
         room.cur_temp = math.floor(zigbee.value(room.sensor, "temperature") * 10 + 0.5) / 10
         room.low_temp = room.cur_temp < (room.min_temp - 1)
+        room.switch_on = room.switch and zigbee.value(room.switch, "state") == "ON" or false
+        if (not room.switch_only and self.boiler_on) or room.switch_on then
+            -- если уже идет нагрев, греем до max_temp
+            room.min_temp = room.max_temp
+        end
         room.need_heating = room.cur_temp < room.min_temp
         room.stop_heating = room.cur_temp > room.max_temp
         if room.switch then
-            -- запрос текущей мощности розетки
-            if zigbee.value(room.switch, "state") == "ON" or zigbee.value(room.switch, "power") > 0 then
-                zigbee.get(room.switch, "power")
+            if room.switch_on or zigbee.value(room.switch, "power") > 0 then
+                zigbee.get(room.switch, "power") -- запрос текущей мощности
             end
-            set_state(room.switch, "state", self.force_switches_on or (not room.stop_heating and (room.need_heating or night_rate))) -- включение розетки в комнате
+            set_state(room.switch, "state", self.force_switches_on or (not room.stop_heating and (room.need_heating or night_rate)))
         end
         self.cur_temp = math.min(self.cur_temp, room.cur_temp)
-        if not room.only_switch then
+        if not room.switch_only then
             need_heating = need_heating or room.need_heating
             stop_heating = stop_heating and room.stop_heating
             self.force_full_power = self.force_full_power or room.low_temp
