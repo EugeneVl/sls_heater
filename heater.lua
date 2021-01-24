@@ -2,8 +2,8 @@ local function fmt(num)
     return (num > 9 and "" or "0") .. num
 end
 local function set_state(dev, state, value, msg)
-    new_state = value and "ON" or "OFF"
-    old_state = value and "OFF" or "ON"
+    local new_state = value and "ON" or "OFF"
+    local old_state = value and "OFF" or "ON"
     if zigbee.value(dev, state) == old_state then
         zigbee.set(dev, state, new_state)
         if msg then
