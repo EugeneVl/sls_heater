@@ -2,9 +2,6 @@ local function fmt(num)
     return (num > 9 and "" or "0") .. num
 end
 local function set_state(dev, state, value, msg)
-    if not dev then
-        return
-    end
     new_state = value and "ON" or "OFF"
     old_state = value and "OFF" or "ON"
     if zigbee.value(dev, state) == old_state then
@@ -48,8 +45,8 @@ function heater:adjust_heaters()
             if zigbee.value(room.switch, "state") == "ON" or zigbee.value(room.switch, "power") > 0 then
                 zigbee.get(room.switch, "power")
             end
+            set_state(room.switch, "state", self.force_switches_on or (not room.stop_heating and (room.need_heating or night_rate))) -- включение розетки в комнате
         end
-        set_state(room.switch, "state", self.force_switches_on or (not room.stop_heating and (room.need_heating or night_rate))) -- включение розетки в комнате
         self.cur_temp = math.min(self.cur_temp, room.cur_temp)
         need_heating = need_heating or room.need_heating
         stop_heating = stop_heating and room.stop_heating
