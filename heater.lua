@@ -32,7 +32,7 @@ end
 function heater:adjust_heaters()
     local hour = (math.modf(os.time() / 3600) + 10) % 24
     local night_rate = hour >= 23 or hour < 7 -- ночной тариф
-    local need_heating = night_rate
+    local need_heating = false
     local stop_heating = true
     for _, room in pairs(heater.rooms) do
         if hour >= self.night_start or hour < self.day_start then
