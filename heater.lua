@@ -44,7 +44,7 @@ function heater:adjust_heaters()
         room.low_temp = room.cur_temp < (room.min_temp - 1)
         room.switch_on = room.switch and zigbee.value(room.switch, "state") == "ON" or false
         if night_rate and ((not room.switch_only and self.boiler_on) or room.switch_on) then
-            -- временно это условие ограниченно ночным тарифом
+            -- временно это условие ограничено ночным тарифом
             -- если уже идет нагрев, греем до max_temp
             room.min_temp = room.max_temp
         end
@@ -54,7 +54,7 @@ function heater:adjust_heaters()
             if room.switch_on or zigbee.value(room.switch, "power") > 0 then
                 zigbee.get(room.switch, "power") -- запрос текущей мощности
             end
-            set_state(room.switch, "state", self.force_switches_on or (not room.stop_heating and (room.need_heating or night_rate)))
+            set_state(room.switch, "state", self.force_switches_on or (not room.stop_heating and room.need_heating))
         end
         self.cur_temp = math.min(self.cur_temp, room.cur_temp)
         if not room.switch_only then
