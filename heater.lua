@@ -37,6 +37,8 @@ function heater:adjust_heaters()
     local need_heating = night_rate
     local stop_heating = true
     for _, room in pairs(heater.rooms) do
+        room.min_temp = room.set_temp - room.hysteresis
+        room.max_temp = room.set_temp + room.hysteresis
         room.cur_temp = math.floor(zigbee.value(room.sensor, "temperature") * 10 + 0.5) / 10
         room.low_temp = room.cur_temp < (room.min_temp - 1)
         room.need_heating = room.cur_temp < room.min_temp
