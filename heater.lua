@@ -22,7 +22,6 @@ heater.force_switches_on = zigbee.value(heater.switch.addr, heater.switch.force_
 function heater:set_full_power(val)
     set_state(self.switch.addr, self.switch.full_power, val)
 end
-
 function heater:set_boiler(val)
     local msg = "Отопление " .. (val and "включено" or "выключено") .. " 🌡 " .. self.cur_temp .. "°C"
     set_state(self.switch.addr, self.switch.boiler_on, val, msg)
