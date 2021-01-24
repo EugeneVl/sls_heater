@@ -27,11 +27,8 @@ function heater:set_full_power(val)
 end
 
 function heater:set_boiler(val)
-    if val then
-        set_state(self.switch.addr, self.switch.boiler_on, true, "Отопление включено 🌡 " .. self.cur_temp .. "°C")
-    else
-        set_state(self.switch.addr, self.switch.boiler_on, false, "Отопление выключено 🌡 " .. self.cur_temp .. "°C")
-    end
+    local msg = "Отопление " .. (val and "включено" or "выключено") .. " 🌡 " .. self.cur_temp .. "°C"
+    set_state(self.switch.addr, self.switch.boiler_on, val, msg)
 end
 
 function heater:adjust_heaters()
