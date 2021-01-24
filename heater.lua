@@ -35,7 +35,7 @@ function heater:adjust_heaters()
     local need_heating = false
     local stop_heating = true
     for _, room in pairs(heater.rooms) do
-        if hour >= self.night_start_at or hour < self.day_start_at then
+        if hour >= self.night_starts_at or hour < self.day_starts_at then
             room.set_temp = room.set_temp + room.night_temp_offset;
         end
         room.min_temp = room.set_temp - room.hysteresis
