@@ -36,7 +36,7 @@ local heater = {
             night_temp_offset = 0
         }
     },
-    day_start_at = 7,
-    night_start_at = 23
+    day_starts_at = 7,
+    night_starts_at = 23
 }
 return heater
