@@ -25,14 +25,15 @@ heater.force_switches_on = zigbee.value(heater.switch.addr, heater.switch.force_
 function heater:set_full_power(val)
     set_state(self.switch.addr, self.switch.full_power, val)
 end
+
 function heater:set_boiler(val)
     if val then
         set_state(self.switch.addr, self.switch.boiler_on, true, "Отопление включено 🌡 " .. self.cur_temp .. "°C")
-    elseif condition then
+    else
         set_state(self.switch.addr, self.switch.boiler_on, true, "Отопление выключено 🌡 " .. self.cur_temp .. "°C")
     end
-
 end
+
 function heater:adjust_heaters()
     local hour = (math.modf(os.time() / 3600) + 10) % 24
     local night_rate = hour >= 23 or hour < 7 -- ночной тариф
