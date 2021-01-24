@@ -34,6 +34,9 @@ function heater:adjust_heaters()
     local need_heating = night_rate
     local stop_heating = true
     for _, room in pairs(heater.rooms) do
+        if hour >= self.night_start or hour < self.day_start then
+            room.set_temp = room.set_temp + room.night_temp_offset;
+        end
         room.min_temp = room.set_temp - room.hysteresis
         room.max_temp = room.set_temp + room.hysteresis
         room.cur_temp = math.floor(zigbee.value(room.sensor, "temperature") * 10 + 0.5) / 10
@@ -48,9 +51,11 @@ function heater:adjust_heaters()
             set_state(room.switch, "state", self.force_switches_on or (not room.stop_heating and (room.need_heating or night_rate))) -- включение розетки в комнате
         end
         self.cur_temp = math.min(self.cur_temp, room.cur_temp)
-        need_heating = need_heating or room.need_heating
-        stop_heating = stop_heating and room.stop_heating
-        self.force_full_power = self.force_full_power or room.low_temp
+        if not room.only_switch then
+            need_heating = need_heating or room.need_heating
+            stop_heating = stop_heating and room.stop_heating
+            self.force_full_power = self.force_full_power or room.low_temp
+        end
     end
     self:set_full_power(self.force_full_power or night_rate)
     self:set_boiler(self.force_boiler_on or (not stop_heating and need_heating))
