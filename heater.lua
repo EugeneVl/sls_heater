@@ -30,7 +30,7 @@ function heater:set_boiler(val)
     if val then
         set_state(self.switch.addr, self.switch.boiler_on, true, "Отопление включено 🌡 " .. self.cur_temp .. "°C")
     else
-        set_state(self.switch.addr, self.switch.boiler_on, true, "Отопление выключено 🌡 " .. self.cur_temp .. "°C")
+        set_state(self.switch.addr, self.switch.boiler_on, false, "Отопление выключено 🌡 " .. self.cur_temp .. "°C")
     end
 end
 
