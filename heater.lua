@@ -56,26 +56,28 @@ function heater:adjust_heaters()
     local hour = (math.modf(os.time() / 3600) + 10) % 24
     local night_rate = hour >= 23 or hour < 7 -- ночной тариф
     local need_heating = false
+    local min_temp = 0
+    local max_temp = 0
+    local low_temp = false
     for _, room in pairs(heater.rooms) do
         if hour >= self.night_starts_at or hour < self.day_starts_at then
             room.set_temp = room.set_temp + room.night_temp_offset;
         end
-        room.min_temp = room.set_temp - room.hysteresis
-        room.max_temp = room.set_temp + room.hysteresis
-        room.low_temp = room.cur_temp < (room.min_temp - 1)
+        min_temp = room.set_temp - room.hysteresis
+        max_temp = room.set_temp + room.hysteresis
+        low_temp = room.cur_temp < (min_temp - 1)
         if night_rate and ((not room.switch_only and self.boiler_on) or room.switch_on) then
             -- временно это условие ограничено ночным тарифом
             -- если уже идет нагрев, греем до max_temp
-            room.need_heating = room.cur_temp < room.max_temp
-        else
-            room.need_heating = room.cur_temp < room.min_temp
+            min_temp = max_temp
         end
+        room.need_heating = room.cur_temp < min_temp
         if room.switch then
             set_state(room.switch, "state", self.force_switches_on or room.need_heating)
         end
         if not room.switch_only then
             need_heating = need_heating or room.need_heating
-            self.force_full_power = self.force_full_power or room.low_temp
+            self.force_full_power = self.force_full_power or low_temp
         end
     end
     self:set_full_power(self.force_full_power or night_rate)
