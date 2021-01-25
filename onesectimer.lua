@@ -27,7 +27,7 @@ elseif command == "status" then
     if heater.force_full_power then
         cur_pwr = "❗" .. cur_pwr .. "❗"
     end
-    if self.force_boiler_on then
+    if heater.force_boiler_on then
         cur_heat = "❗" .. cur_heat .. "❗"
     end
     telegram.send("  🌡 " .. cur_temp .. "°C  💧 " .. cur_hum .. "%  ♨ " .. cur_heat .. "  💪 " .. cur_pwr)
