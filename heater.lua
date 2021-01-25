@@ -20,7 +20,7 @@ end
 function heater:set_force_boiler_on(val)
     set_state(self.switch.addr, self.switch.force_boiler_on, val)
 end
-function heater:force_switches_on(val)
+function heater:set_force_switches_on(val)
     set_state(self.switch.addr, self.switch.force_switches_on, val)
 end
 function heater:set_full_power(val)
@@ -46,7 +46,7 @@ function heater:init()
         if room.switch then
             room.switch_on = zigbee.value(room.switch, "state") == "ON"
             if get_switch_power and (room.switch_on or zigbee.value(room.switch, "power") > 0) then
-                zigbee.get(room.switch, "power") -- запрос текущей мощности
+                zigbee.get(room.switch, "power")
             end
         end
     end
@@ -57,31 +57,28 @@ function heater:adjust_heaters()
     local night_rate = hour >= 23 or hour < 7 -- ночной тариф
     local need_heating = false
     local min_temp = 0
-    local max_temp = 0
-    local low_temp = false
     for _, room in pairs(heater.rooms) do
         if hour >= self.night_starts_at or hour < self.day_starts_at then
             room.set_temp = room.set_temp + room.night_temp_offset;
         end
-        min_temp = room.set_temp - room.hysteresis
-        max_temp = room.set_temp + room.hysteresis
-        low_temp = room.cur_temp < (min_temp - 1)
         if night_rate and ((not room.switch_only and self.boiler_on) or room.switch_on) then
-            -- временно это условие ограничено ночным тарифом
-            -- если уже идет нагрев, греем до max_temp
-            min_temp = max_temp
+            -- ночью, если уже идет нагрев, греем до + hysteresis
+            min_temp = room.set_temp + room.hysteresis
+        else
+            -- в остальных случаях греем до - hysteresis
+            min_temp = room.set_temp - room.hysteresis
         end
-        room.need_heating = room.cur_temp < min_temp
+        need_heating = room.cur_temp < min_temp
         if room.switch then
-            set_state(room.switch, "state", self.force_switches_on or room.need_heating)
+            set_state(room.switch, "state", self.force_switches_on or need_heating)
         end
         if not room.switch_only then
-            need_heating = need_heating or room.need_heating
-            self.force_full_power = self.force_full_power or low_temp
+            self.force_boiler_on = self.force_boiler_on or need_heating
+            self.force_full_power = self.force_full_power or room.cur_temp < (min_temp - 1)
         end
     end
     self:set_full_power(self.force_full_power or night_rate)
-    self:set_boiler(self.force_boiler_on or need_heating)
+    self:set_boiler(self.force_boiler_on)
 end
 
 return heater
