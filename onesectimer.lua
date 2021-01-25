@@ -22,8 +22,8 @@ elseif command == "ws_off" then
 elseif command == "status" then
     local cur_temp = heater.rooms.living_room.cur_temp
     local cur_hum = heater.rooms.living_room.cur_hum
-    local cur_pwr = heater.full_power
-    local cur_heat = heater.boiler_on
+    local cur_pwr = heater.full_power and "ON" or "OFF"
+    local cur_heat = heater.boiler_on and "ON" or "OFF"
     if heater.force_full_power then
         cur_pwr = "❗" .. cur_pwr .. "❗"
     end
