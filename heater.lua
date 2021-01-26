@@ -26,21 +26,18 @@ end
 function heater:set_full_power(val)
     set_state(self.switch.addr, self.switch.full_power, val)
 end
-function heater:set_boiler(val)
-    local msg = "Отопление " .. (val and "включено" or "выключено") .. " 🌡 " .. self.cur_temp .. "°C"
+function heater:set_boiler(val, temp)
+    local msg = "Отопление " .. (val and "включено" or "выключено") .. " 🌡 " .. temp .. "°C"
     set_state(self.switch.addr, self.switch.boiler_on, val, msg)
 end
-
 function heater:get_switch_state(flag)
     return zigbee.value(self.switch.addr, flag)
 end
 
 function heater:init()
-    self.force_full_power = self:get_switch_state(self.switch.force_full_power) == "ON"
-    self.force_boiler_on = self:get_switch_state(self.switch.force_boiler_on) == "ON"
-    self.force_switches_on = self:get_switch_state(self.switch.force_switches_on) == "ON"
-    self.full_power = self:get_switch_state(self.switch.full_power) == "ON"
-    self.boiler_on = self:get_switch_state(self.switch.boiler_on) == "ON"
+    for name, state in pairs(self.switch.states) do
+        self[name] = self:get_switch_state(state) == "ON"
+    end
     self.cur_temp = 99
     local get_switch_power = false -- нужно ли запрашивать мощность у розеток
     for _, room in pairs(self.rooms) do
@@ -82,7 +79,7 @@ function heater:adjust_heaters()
         end
     end
     self:set_full_power(self.force_full_power or night_rate)
-    self:set_boiler(self.force_boiler_on)
+    self:set_boiler(self.force_boiler_on, self.rooms.living_room.cur_temp)
 end
 
 return heater
