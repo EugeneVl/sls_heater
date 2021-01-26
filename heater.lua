@@ -15,20 +15,20 @@ end
 local heater = loadfile("/int/heater_config.lua")()
 
 function heater:set_force_full_power(val)
-    set_state(self.switch.addr, self.switch.force_full_power, val)
+    set_state(self.switch.addr, self.switch.states.force_full_power, val)
 end
 function heater:set_force_boiler_on(val)
-    set_state(self.switch.addr, self.switch.force_boiler_on, val)
+    set_state(self.switch.addr, self.switch.states.force_boiler_on, val)
 end
 function heater:set_force_switches_on(val)
-    set_state(self.switch.addr, self.switch.force_switches_on, val)
+    set_state(self.switch.addr, self.switch.states.force_switches_on, val)
 end
 function heater:set_full_power(val)
-    set_state(self.switch.addr, self.switch.full_power, val)
+    set_state(self.switch.addr, self.switch.states.full_power, val)
 end
 function heater:set_boiler(val, temp)
     local msg = "Отопление " .. (val and "включено" or "выключено") .. " 🌡 " .. temp .. "°C"
-    set_state(self.switch.addr, self.switch.boiler_on, val, msg)
+    set_state(self.switch.addr, self.switch.states.boiler_on, val, msg)
 end
 function heater:get_switch_state(flag)
     return zigbee.value(self.switch.addr, flag)
