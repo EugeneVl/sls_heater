@@ -26,7 +26,7 @@ end
 function heater:set_full_power(val)
     set_state(self.switch.addr, self.switch.states.full_power, val)
 end
-function heater:set_boiler(val, temp)
+function heater:set_boiler_on(val, temp)
     local msg = "Отопление " .. (val and "включено" or "выключено") .. " 🌡 " .. temp .. "°C"
     set_state(self.switch.addr, self.switch.states.boiler_on, val, msg)
 end
@@ -76,7 +76,7 @@ function heater:adjust_heaters()
         end
     end
     self:set_full_power(self.force_full_power or night_rate)
-    self:set_boiler(self.force_boiler_on, self.rooms.living_room.cur_temp)
+    self:set_boiler_on(self.force_boiler_on, self.rooms.living_room.cur_temp)
 end
 
 return heater
