@@ -30,8 +30,8 @@ function heater:set_boiler(val, temp)
     local msg = "Отопление " .. (val and "включено" or "выключено") .. " 🌡 " .. temp .. "°C"
     set_state(self.switch.addr, self.switch.states.boiler_on, val, msg)
 end
-function heater:get_switch_state(flag)
-    return zigbee.value(self.switch.addr, flag)
+function heater:get_switch_state(state)
+    return zigbee.value(self.switch.addr, state)
 end
 
 function heater:init()
