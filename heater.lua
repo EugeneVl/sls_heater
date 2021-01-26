@@ -31,12 +31,16 @@ function heater:set_boiler(val)
     set_state(self.switch.addr, self.switch.boiler_on, val, msg)
 end
 
+function heater:get_switch_state(flag)
+    return zigbee.value(self.switch.addr, flag)
+end
+
 function heater:init()
-    self.force_full_power = zigbee.value(self.switch.addr, self.switch.force_full_power) == "ON"
-    self.force_boiler_on = zigbee.value(self.switch.addr, self.switch.force_boiler_on) == "ON"
-    self.force_switches_on = zigbee.value(self.switch.addr, self.switch.force_switches_on) == "ON"
-    self.full_power = zigbee.value(self.switch.addr, self.switch.full_power) == "ON"
-    self.boiler_on = zigbee.value(self.switch.addr, self.switch.boiler_on) == "ON"
+    self.force_full_power = self:get_switch_state(self.switch.force_full_power) == "ON"
+    self.force_boiler_on = self:get_switch_state(self.switch.force_boiler_on) == "ON"
+    self.force_switches_on = self:get_switch_state(self.switch.force_switches_on) == "ON"
+    self.full_power = self:get_switch_state(self.switch.full_power) == "ON"
+    self.boiler_on = self:get_switch_state(self.switch.boiler_on) == "ON"
     self.cur_temp = 99
     local get_switch_power = false -- нужно ли запрашивать мощность у розеток
     for _, room in pairs(self.rooms) do
@@ -54,7 +58,7 @@ end
 
 function heater:adjust_heaters()
     local hour = (math.modf(os.time() / 3600) + 10) % 24
-    local night_rate = hour >= 23 or hour < 7 -- ночной тариф
+    local night_rate = hour >= switch.night_starts_at or hour < switch.day_starts_at -- ночной тариф
     local need_heating = false
     local min_temp = 0
     for _, room in pairs(heater.rooms) do
