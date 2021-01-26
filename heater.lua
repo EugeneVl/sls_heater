@@ -58,7 +58,7 @@ end
 
 function heater:adjust_heaters()
     local hour = (math.modf(os.time() / 3600) + 10) % 24
-    local night_rate = hour >= switch.night_starts_at or hour < switch.day_starts_at -- ночной тариф
+    local night_rate = hour >= 23 or hour < 7 -- ночной тариф
     local need_heating = false
     local min_temp = 0
     for _, room in pairs(heater.rooms) do
