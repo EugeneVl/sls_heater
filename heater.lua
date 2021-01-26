@@ -38,12 +38,10 @@ function heater:init()
     for name, state in pairs(self.switch.states) do
         self[name] = self:get_switch_state(state) == "ON"
     end
-    self.cur_temp = 99
     local get_switch_power = false -- нужно ли запрашивать мощность у розеток
     for _, room in pairs(self.rooms) do
         room.cur_temp = math.floor(zigbee.value(room.sensor, "temperature") * 10 + 0.5) / 10
         room.cur_hum = math.floor(zigbee.value(room.sensor, "humidity"))
-        self.cur_temp = math.min(self.cur_temp, room.cur_temp)
         if room.switch then
             room.switch_on = zigbee.value(room.switch, "state") == "ON"
             if get_switch_power and (room.switch_on or zigbee.value(room.switch, "power") > 0) then
