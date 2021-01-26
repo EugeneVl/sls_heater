@@ -38,7 +38,7 @@ function heater:init()
     for name, state in pairs(self.switch.states) do
         self[name] = self:get_switch_state(state) == "ON"
     end
-    local get_switch_power = false -- нужно ли запрашивать мощность у розеток
+    local get_switch_power = true -- нужно ли запрашивать мощность у розеток
     for _, room in pairs(self.rooms) do
         room.cur_temp = math.floor(zigbee.value(room.sensor, "temperature") * 10 + 0.5) / 10
         room.cur_hum = math.floor(zigbee.value(room.sensor, "humidity"))
@@ -73,7 +73,7 @@ function heater:adjust_heaters()
         end
         if not room.switch_only then
             self.force_boiler_on = self.force_boiler_on or need_heating
-            self.force_full_power = self.force_full_power or room.cur_temp < (min_temp - 1)
+            self.force_full_power = self.force_full_power or room.cur_temp < (room.set_temp - room.hysteresis - 1)
         end
     end
     self:set_full_power(self.force_full_power or night_rate)
