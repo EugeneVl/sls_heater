@@ -55,9 +55,11 @@ function heater:adjust_heaters()
     local hour = (math.modf(os.time() / 3600) + 10) % 24
     local night_rate = hour >= 23 or hour < 7 -- ночной тариф
     for _, room in pairs(heater.rooms) do
-        local min_temp = room.set_temp - room.hysteresis - 1 -- если упадет ниже этой t, включается полная мощность
+        local min_temp = room.day_temp - 5 -- если упадет ниже этой t, включается полная мощность
         if hour >= self.night_starts_at or hour < self.day_starts_at then
-            room.set_temp = room.set_temp + room.night_temp_offset
+            room.set_temp = room.night_temp;
+        else
+            room.set_temp = room.day_temp;
         end
         if night_rate and ((not room.switch_only and self.boiler_on) or room.switch_on) then
             -- ночью, если уже идет нагрев, греем до (set_temp + hysteresis)
